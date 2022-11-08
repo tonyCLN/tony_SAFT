@@ -12,7 +12,10 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tonyCLN/tony_SAFT",  #<<<
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(
+        where='.',
+        include=['tony_saft*'],  # alternatively: `exclude=['additional*']`
+        ),
     classifiers=[
         "Programming Language :: Python :: 3", 
         "Operating System :: OS Independent",
