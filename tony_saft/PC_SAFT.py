@@ -14,7 +14,7 @@ from scipy.constants import Avogadro as Navo  # numero de avogadro mol^-1
 from scipy.constants import pi
 from scipy import optimize
 import numpy as np
-from pcsaft import pcsaft_den, pcsaft_ares, pcsaft_fugcoef, pcsaft_gres, pcsaft_osmoticC
+# from pcsaft import pcsaft_den, pcsaft_ares, pcsaft_fugcoef, pcsaft_gres, pcsaft_osmoticC
 import numdifftools as nd
 
 class PC_SAFT_EOS():
