@@ -2,10 +2,21 @@
 """
 Spyder Editor
 # Author: Antonio Cavalcante de Lima Neto
-# Github: 
+# Github: https://github.com/tonyCLN
 # Date: 14-10-2022
-# Updated: 
+# Updated: 14-11-2022
 
+References:
+    Gross, J., & Sadowski, G. (2019). Reply to Comment on 
+“perturbed-Chain SAFT: An Equation of State Based on 
+a Perturbation Theory for Chain Molecules.” Industrial 
+and Engineering Chemistry Research, 58(14), 5744–
+5745. https://doi.org/10.1021/acs.iecr.9b01515
+
+Michelsen, M. L., & Hendriks, E. M. (2001). 
+Physical properties from association models. 
+Fluid Phase Equilibria, 180(1–2), 165–174. 
+https://doi.org/10.1016/S0378-3812(01)00344-2
 
 """
 import numpy as np
@@ -14,7 +25,6 @@ from scipy.constants import Avogadro as Navo  # numero de avogadro mol^-1
 from scipy.constants import pi
 from scipy import optimize
 import numpy as np
-# from pcsaft import pcsaft_den, pcsaft_ares, pcsaft_fugcoef, pcsaft_gres, pcsaft_osmoticC
 import numdifftools as nd
 
 class PC_SAFT_EOS():
