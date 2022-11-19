@@ -35,7 +35,7 @@ import numpy as np
 import numdifftools as nd
 
 class PC_SAFT_EOS():
-    def __init__(self, m, sigma, epsilon_k, M=None, kbi=None, kAB_k=None, eAB_k=None, S=None):
+    def __init__(self, m, sigma, epsilon_k, M=None, kbi=None, kAB_k=None, eAB_k=None, S=None,deltasimplified=False):
         if type(m) is np.ndarray:
             self.ncomp = len(m)
         else:
@@ -785,12 +785,20 @@ class PC_SAFT_EOS():
         kAiBj_k = self.PC_SAFT_kAiBj_k(x)
         ghs = self.PC_SAFT_ghs(dens, T, x)
         delt = np.zeros((nsite, self.ncomp, nsite, self.ncomp))
-        for i in range(self.ncomp):
-            for j in range(nsite):
-                for k in range(self.ncomp):
-                    for l in range(nsite):
-                        if j != l:
-                            delt[j,i,l,k] = pi/6*MAT_sigma[i,k]**3*ghs[i,k]*(np.exp(eAiBj_k[i,k]/T) - 1 )*kAiBj_k[i,k]
+        if self.deltasimplified == False:
+            for i in range(self.ncomp):
+                for j in range(nsite):
+                    for k in range(self.ncomp):
+                        for l in range(nsite):
+                            if j != l:
+                                delt[j,i,l,k] = pi/6*MAT_sigma[i,k]**3*ghs[i,k]*(np.exp(eAiBj_k[i,k]/T) - 1 )*kAiBj_k[i,k]
+        else:
+            for i in range(self.ncomp):
+                for j in range(nsite):
+                    for k in range(self.ncomp):
+                        for l in range(nsite):
+                            if j != l:
+                                delt[j,i,l,k] = pi/6*MAT_sigma[i,k]**3*ghs[i,k]*(np.exp(eAiBj_k[i,k]/T) - 1 )*kAiBj_k[i,k]
         return delt
 
     def PC_SAFT_X_tan(self, dens, T, x):
