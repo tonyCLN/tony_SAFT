@@ -802,6 +802,7 @@ class PC_SAFT_EOS():
                         for l in range(nsite):
                             if j != l:
                                 delt[j,i,l,k] = pi/6*MAT_sigma[i,k]**3*ghs[i,k]*(np.exp(eAiBj_k[i,k]/T) - 1 )*kAiBj_k[i,k]
+        print('delt')
         return delt
 
     def PC_SAFT_X_tan(self, dens, T, x):
