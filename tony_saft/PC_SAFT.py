@@ -103,6 +103,7 @@ class PC_SAFT_EOS():
         self.ap = ap
         self.bp = bp
 
+        self.deltasimplified = deltasimplified
         return
 
     # EQ A.9 ok!
