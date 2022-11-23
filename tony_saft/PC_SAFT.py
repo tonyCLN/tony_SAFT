@@ -26,8 +26,6 @@ Fluid Phase Equilibria, 180(1–2), 165–174.
 https://doi.org/10.1016/S0378-3812(01)00344-2
 
 """
-from numba import jitclass,njit
-from numba import int64,float64, types
 import numpy as np
 from scipy.constants import k as kb  # constante de Boltzmann J /K
 from scipy.constants import Avogadro as Navo  # numero de avogadro mol^-1
@@ -843,7 +841,7 @@ class PC_SAFT_EOS():
 
     def PC_SAFT_a_ass(self, dens, T, x):
         nsite = len(self.S)
-        X_A = self.PC_SAFT_X_tan_njit(dens, T, x)
+        X_A = self.PC_SAFT_X_tan(dens, T, x)
         a_ass = 0
 
         for i in range(self.ncomp):
@@ -1047,39 +1045,3 @@ class PC_SAFT_EOS():
         
         return ddens_dP( P,T, x,phase,opt,method)#,d2dens_dP(self, T,P, x,phase,opt,method)
         
-    
-@njit
-def PC_SAFT_X_tan_njit(dens, T, x):
-    delta = PC_SAFT_EOS.PC_SAFT_delt(dens, T, x)
-    S = PC_SAFT_EOS.S
-    nsite = len(S)
-    ncomp = PC_SAFT_EOS.ncomp
-    rho = PC_SAFT_EOS.PC_SAFT_rho(dens)
-# Sji is the number of association sites of type j in molecule of componente i
-# example molecule = AABCC, then Sji = 2,1,2
-    X_A = np.zeros([nsite, ncomp])
-    dif = np.zeros([nsite, ncomp])
-    X_A[:, :] = .5
-    res = 1.
-    it = 0
-    itMAX = 1000
-    # Iterations with tolerance of 10-9
-    while (res > 1e-9 and it < itMAX):
-        it += 1
-        X_A_old = X_A*1.
-        for i in range(ncomp):
-            for j in range(nsite):
-                sum1 = 0
-                for k in range(ncomp):
-                    sum2 = 0
-                    for l in range(nsite):
-                        sum2 += S[l, k]*X_A_old[l, k]*delta[l, k, j, i]
-                    sum1 += x[k]*sum2
-                X_A[j, i] = 1./(1. + rho*sum1)
-                dif[j, i] = np.abs((X_A[j, i]-X_A_old[j, i])/X_A[j, i])
-        res = np.max(dif)
-    if it == itMAX:
-        print('too many steps in X_tan')
-        X_A = X_A*np.nan
-#     print('xtan=',X_A.flatten())
-    return X_A
