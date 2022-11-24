@@ -424,14 +424,6 @@ class PC_SAFT_EOS():
                 if phase == 'vap':
                     return densV_1
             
-        if real is True:
-            Gl_res = self.PC_SAFT_G_res(densL_1, T, x)
-            Gv_res = self.PC_SAFT_G_res(densV_1, T, x)
-            if Gl_res < Gv_res:
-                return densL_1
-            if Gl_res > Gv_res:
-                return densV_1
-
         return densL_1, densV_1
 
     # EQ A.6 ok!
@@ -817,7 +809,7 @@ class PC_SAFT_EOS():
         X_A[:, :] = .5
         res = 1.
         it = 0
-        itMAX = 1000
+        itMAX = 3000
         # Iterations with tolerance of 10-9
         while (res > 1e-9 and it < itMAX):
             it += 1
@@ -834,7 +826,6 @@ class PC_SAFT_EOS():
                     dif[j, i] = np.abs((X_A[j, i]-X_A_old[j, i])/X_A[j, i])
             res = np.max(dif)
         if it == itMAX:
-            print('too many steps in X_tan')
             X_A = X_A*np.nan
     #     print('xtan=',X_A.flatten())
         return X_A
