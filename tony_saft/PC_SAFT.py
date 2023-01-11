@@ -25,6 +25,20 @@ Physical properties from association models.
 Fluid Phase Equilibria, 180(1–2), 165–174. 
 https://doi.org/10.1016/S0378-3812(01)00344-2
 
+X association algorithm:
+Tan, S. P., Adidharma, H., & Radosz, M. (2004).
+Generalized Procedure for Estimating the Fractions of 
+Nonbonded Associating Molecules and Their Derivatives in 
+Thermodynamic Perturbation Theory. Industrial and Engineering 
+Chemistry Research, 43(1), 203–208. https://doi.org/10.1021/ie034041q
+
+Delta funtion:
+Tan, S. P., Adidharma, H., & Radosz, M. (2004). Generalized Procedure 
+for Estimating the Fractions of Nonbonded Associating Molecules and 
+Their Derivatives in Thermodynamic Perturbation Theory. Industrial 
+and Engineering Chemistry Research, 43(1), 203–208. 
+https://doi.org/10.1021/ie034041q
+
 """
 import numpy as np
 from scipy.constants import k as kb  # constante de Boltzmann J /K
