@@ -4,7 +4,7 @@ Spyder Editor
 # Author: Antonio Cavalcante de Lima Neto
 # Github: https://github.com/tonyCLN
 # Date: 14-10-2022
-# Updated: 14-11-2022
+# Updated: 14-09-2023
 
 References:
     
@@ -40,7 +40,7 @@ and Engineering Chemistry Research, 43(1), 203–208.
 https://doi.org/10.1021/ie034041q
 
 """
-import numpy as np
+
 from scipy.constants import k as kb  # constante de Boltzmann J /K
 from scipy.constants import Avogadro as Navo  # numero de avogadro mol^-1
 from scipy.constants import pi
@@ -382,7 +382,6 @@ class PC_SAFT_EOS():
 
         def residuo(dens):
             densi, = dens
-            # res0 = 1 - (self.PC_SAFT_Pressure(densi, T, x))/P
             res0 = ((self.PC_SAFT_Pressure(densi, T, x))/P) -1
             f = [res0]
 
@@ -498,8 +497,6 @@ class PC_SAFT_EOS():
         else:
             a_res = self.PC_SAFT_a_hc(dens, T, x) + self.PC_SAFT_a_disp(dens, T, x) + self.PC_SAFT_a_ass(dens, T, x)
         
-        # import pcsaft
-        # a_res = pcsaft.pcsaft_ares(T,dens,x,params)
         return a_res
 
     # EQ A.34 ok!
@@ -769,104 +766,6 @@ class PC_SAFT_EOS():
                 
         
         return dg_ij_drho
-    
-    #confirmado pois ddelta_drho_i * rho = ddelta_dx_i !
-    def PC_SAFT_ddelta_dx_k(self, dens, T, x):
-        nsite = len(self.S)
-        MAT_sigma = self.PC_SAFT_MAT_sigma(x)
-        eAiBj_k = self.PC_SAFT_eAiBj_k()
-        kAiBj_k = self.PC_SAFT_kAiBj_k(x)
-        ddelta_dx_k = np.zeros((nsite, self.ncomp, nsite, self.ncomp,self.ncomp))
-        
-        dg_ij_dx_k = self.PC_SAFT_dg_ij_dx_k(dens, T, x)
-        
-        for m in range(self.ncomp):
-            for i in range(self.ncomp):
-                for j in range(nsite):
-                    for k in range(self.ncomp):
-                        for l in range(nsite):
-                            ddelta_dx_k[j,i,l,k,m] = MAT_sigma[k,i]**3*dg_ij_dx_k[k,i,m]*(np.exp(eAiBj_k[k,i]/T) - 1 )*kAiBj_k[k,i]
-        
-        return ddelta_dx_k
-    
-    def PC_SAFT_ddelta_dx_k_num(self, dens, T, x):
-        step = 1e-5
-        dens= dens+step
-        nsite = len(self.S)
-        eAiBj_k = self.PC_SAFT_eAiBj_k()
-
-        delta_mais = np.zeros((nsite, self.ncomp, nsite, self.ncomp))
-        delta_menos = np.zeros((nsite, self.ncomp, nsite, self.ncomp))
-        ddelta_dx_k = []
-        
-        for m in range(self.ncomp):
-            xmais = x*1
-            xmenos = x*1
-
-            xmais[m] = xmais[m] + step
-            xmenos[m] = xmenos[m] - step            
-            
-            MAT_sigma_mais = self.PC_SAFT_MAT_sigma(xmais)
-            MAT_sigma_menos = self.PC_SAFT_MAT_sigma(xmenos)
-            
-            kAiBj_k_mais = self.PC_SAFT_kAiBj_k(xmais)
-            kAiBj_k_menos = self.PC_SAFT_kAiBj_k(xmenos)
-            
-            ghs_mais = self.PC_SAFT_ghs(dens, T, xmais)
-            ghs_menos = self.PC_SAFT_ghs(dens, T,xmenos)
-            
-            for i in range(self.ncomp):
-                for j in range(nsite):
-                    for k in range(self.ncomp):
-                        for l in range(nsite):
-                            delta_mais[j,i,l,k] = MAT_sigma_mais[k,i]**3*ghs_mais[k,i]*(np.exp(eAiBj_k[k,i]/T) - 1 )*kAiBj_k_mais[k,i]
-                            delta_menos[j,i,l,k] = MAT_sigma_menos[k,i]**3*ghs_menos[k,i]*(np.exp(eAiBj_k[k,i]/T) - 1 )*kAiBj_k_menos[k,i]
-        
-            ddelta_dx_k.append((delta_mais - delta_menos)/(2*step))
-        return ddelta_dx_k
-    
-    
-
-    def PC_SAFT_ddelta_dn_k_num(self, dens, T, x):
-        step = 1e-4
-        nsite = len(self.S)
-        eAiBj_k = self.PC_SAFT_eAiBj_k()
-        delta_mais=np.zeros((nsite, self.ncomp, nsite, self.ncomp))
-        delta_menos = np.zeros((nsite, self.ncomp, nsite, self.ncomp))
-        ddelta_dn_k = np.zeros((nsite, self.ncomp, nsite, self.ncomp,self.ncomp))
-        for m in range(self.ncomp):
-            
-            xmais = x*1
-            xmenos = x*1
-
-            xmais[m] = xmais[m] + step
-            xmenos[m] = xmenos[m] - step
-         
-            nmais = 1 + step
-            nmenos = 1 - step
-            
-            xmais = xmais[:]/np.sum(xmais[:])
-            xmenos = xmenos[:]/np.sum(xmenos[:])
-            
-            MAT_sigma_mais = self.PC_SAFT_MAT_sigma(xmais)
-            MAT_sigma_menos = self.PC_SAFT_MAT_sigma(xmenos)
-            
-            kAiBj_k_mais = self.PC_SAFT_kAiBj_k(xmais)
-            kAiBj_k_menos = self.PC_SAFT_kAiBj_k(xmenos)
-            
-            ghs_mais = self.PC_SAFT_ghs(dens, T, xmais)
-            ghs_menos = self.PC_SAFT_ghs(dens, T, xmenos)
-            
-            for i in range(self.ncomp):
-                for j in range(nsite):
-                    for k in range(self.ncomp):
-                        for l in range(nsite):
-                            if j != l:
-                                delta_mais[j,i,l,k] = MAT_sigma_mais[k,i]**3*ghs_mais[k,i]*(np.exp(eAiBj_k[k,i]/T) - 1 )*kAiBj_k_mais[k,i]
-                                delta_menos[j,i,l,k] = MAT_sigma_menos[k,i]**3*ghs_menos[k,i]*(np.exp(eAiBj_k[k,i]/T) - 1 )*kAiBj_k_menos[k,i]
-        
-            ddelta_dn_k[m] = (nmais*delta_mais - nmenos*delta_menos)/(2*step)
-        return ddelta_dn_k
 
     def PC_SAFT_mu_assoc_kT(self, dens, T, x):
         X_A = self.PC_SAFT_X_tan(dens, T, x)
@@ -927,11 +826,6 @@ class PC_SAFT_EOS():
 
         phi = np.exp(lnphi)
         return phi
-
-    def delta(self):
-        delta = []
-        for k in range(self.ncomp):
-            delta.append(np.zeros([self.nsite, self.nsite]))
             
     def PC_SAFT_eAiBj_k(self):
         eAB_k = self.eAB_k
@@ -999,6 +893,7 @@ class PC_SAFT_EOS():
             res = np.max(dif)
         if it == itMAX:
             X_A = X_A*np.nan
+        # return X_A
         return X_A
 
     #confirmei com o do zach fazendo dX_A_dx_k/rho = dX_A_drho_k
@@ -1033,8 +928,8 @@ class PC_SAFT_EOS():
         for i in range(self.ncomp):
             s1=0
             for j in range(nsite):
-                s1 += (np.log(X_A[j, i]) - X_A[j, i]/2 )
-            a_ass += x[i]*(s1+ sum(self.S[:,i])*0.5)
+                s1 += (np.log(X_A[j, i]) - X_A[j, i]/2 +0.5 )*self.S[j,i]
+            a_ass += x[i]*(s1)
         
         return a_ass
 
@@ -1216,8 +1111,6 @@ class PC_SAFT_EOS():
         step = 1e-4
         T_mais = T+step
         T_menos = T-step
-        dens_mais = self.PC_SAFT_dens(T_mais, P, x,phase=phase)
-        dens_menos = self.PC_SAFT_dens(T_menos, P, x,phase=phase)
         dens = self.PC_SAFT_dens(T, P, x,phase=phase)
         H_res_mais  = self.PC_SAFT_H_res_RT(dens, T_mais, x)*kb*Navo*T 
         H_res_menos  = self.PC_SAFT_H_res_RT(dens, T_menos, x)*kb*Navo*T 
@@ -1248,7 +1141,7 @@ class PC_SAFT_EOS():
 
         for i in range(self.ncomp):
             for j in range(nsite):
-                da_assoc_ddens += x[i]*(1/X_A[j, i] - 1/2)*dX_tan_ddens[j,i]
+                da_assoc_ddens += x[i]*(1/X_A[j, i] - 1/2)*dX_tan_ddens[j,i]*self.S[j,i]
         return da_assoc_ddens
     
     
@@ -1308,4 +1201,3 @@ class PC_SAFT_EOS():
             return lgghs
         dlgghs_ddens = nd.Derivative(f,n=1)
         return dlgghs_ddens(dens,T,x)
-            
